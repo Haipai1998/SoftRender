@@ -154,6 +154,29 @@ void device_init(device_t *device, int width, int height, void *fb) {
     //transform_init(&device->transform, width, height);
     //device->render_state = RENDER_STATE_WIREFRAME;
 }
+
+void device_InitFB(device_t *device) {
+    for (int i = 0; i < device->height; ++i) {
+        int rgb = (device->height - i - 1) * 233 / (device->height - 1);
+        rgb = (rgb << 16) | (rgb << 8) | rgb;
+        UINT32 *dst = device->framebuffer[i];
+        for (int j = 0; j < device->width; ++j) {
+            dst[j] = rgb;
+            //printf("%d %d\n",&dst[0],j);
+        }
+    }
+
+    return;
+}
+
+
+void screen_update() {
+    HDC hDC = GetDC(screen_handle);
+    BitBlt(hDC, 0, 0, screen_w, screen_h, screen_dc, 0, 0, SRCCOPY);
+    ReleaseDC(screen_handle, hDC);
+    screen_dispatch();
+}
+
 int main(void) {
     device_t device; //定义渲染方块结构体，包括背景颜色，框大小
 
@@ -182,7 +205,8 @@ int main(void) {
         if (screen_exit)    break;
 
         screen_dispatch();//分发所有命令给回调函数去处理：处理按键输入
-        device_InitFB();
+        device_InitFB(&device);
+        screen_update();
     }
 
     return 0;
