@@ -259,6 +259,10 @@ void device_InitFB(device_t *device) {
             //printf("%d %d\n",&dst[0],j);
         }
     }
+    for (int y = 0; y < device->height; y++) {
+        float *dst = device->zbuffer[y];
+        for (int x = device->width; x > 0; dst++, x--) dst[0] = 0.0f;
+    }
 
     return;
 }
@@ -602,6 +606,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline) {
                     float u = scanline->v.tc.u * w;
                     float v = scanline->v.tc.v * w;
                     UINT32 cc = device_texture_read(device, u, v);
+                    //printf("w=%d x=%d u=%d v=%d cc=%d\n", w, x, u, v, cc);
                     framebuffer[x] = cc;
                 }
             }
